@@ -7,4 +7,6 @@ dependencies:
   - pandas
   - jupyterlab
   - numpy
+  - seaborn
+  - matplotlib
 prefix: C:\Users\nicol\anaconda3\envs\flights
