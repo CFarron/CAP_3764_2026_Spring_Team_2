@@ -9,4 +9,5 @@ dependencies:
   - numpy
   - seaborn
   - matplotlib
+  - scikit-learn
 prefix: C:\Users\nicol\anaconda3\envs\flights
