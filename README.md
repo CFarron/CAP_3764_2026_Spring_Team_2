@@ -1,180 +1,212 @@
+
 # CAP_3764_2026_Spring_Team_2
 
 # Miami Flights Operational Analysis ✈️
 
 ## 📌 Project Overview
 
-This project analyzes flight operations departing from **Miami International Airport (MIA)** with the goal of identifying patterns related to:
+This project analyzes flight operations departing from **Miami International Airport (MIA)**
+using machine learning to predict flight delay risk and discover operational patterns.
 
-* Flight cancellations
-* Weather-related delays
-* Late aircraft delays
-* Operational patterns by time and day
+The dataset covers **January 1 – February 29, 2024** (winter season only).
+All findings reflect winter operational patterns and should not be generalized to the full year.
 
-The objective is to generate actionable insights that could support operational decision-making and reduce disruption risk.
+Key objectives:
+* Predict whether a flight will experience a significant delay (>15 minutes)
+* Identify which operational factors contribute most to delay risk
+* Discover hidden flight risk profiles through unsupervised clustering
+* Provide actionable insights to support airport operational decision-making
 
 ---
 
-## 🎯 Project Goals
+## 🎯 Business Problem
 
-1. Analyze which days of the week show higher cancellation rates.
-2. Examine how departure time influences weather and aircraft delays.
-3. Identify operational patterns that increase disruption risk.
-4. Provide data-driven insights with business value.
-
-This project focuses on **descriptive analytics (EDA)** to uncover meaningful trends in the data.
+Flight delays at MIA generate cascading disruptions — a single delayed aircraft
+affects subsequent flights, crew scheduling, and passenger connections.
+This project builds predictive models to flag high-risk flights before departure,
+enabling proactive resource allocation by ground operations teams.
 
 ---
 
 ## 📂 Repository Structure
 
-```
 CAP_3764_2026_Spring_Team_2/
 │
 ├── data/
-│   ├── raw/                # Original dataset
-│   └── processed/          # Cleaned dataset
+│   ├── raw/                    # Original unmodified dataset
+│   └── processed/              # Cleaned and filtered MIA dataset
 │
-├── notebooks/              # Jupyter notebooks (EDA & analysis)
-├── my_modules/             # Data cleaning and helper functions
-├── outputs/                # Generated plots and exports
-├── environment.yml         # Conda environment configuration
-└── README.md               # Project documentation
-```
-
----
+├── notebooks/
+│   ├── 01_data_cleaning.ipynb  # Data preparation and preprocessing
+│   ├── 02_eda.ipynb            # Exploratory data analysis
+│   ├── 03_tree_based_model.ipynb  # Decision Tree + Random Forest
+│   └── 04_clustering.ipynb     # PCA + KMeans + DBSCAN clustering
+│
+├── my_modules/                 # Custom data loading and preprocessing functions
+├── outputs/                    # Generated plots, CSVs, and model exports
+├── environment.yml             # Conda environment with pinned dependencies
+└── README.md                   # Project documentation
 
 ## 🛠️ Environment Setup
 
-To reproduce this project environment:
-
+To reproduce this project in a clean environment:
 ```bash
 conda env create -f environment.yml
-conda activate flights
+conda activate mia-flights-cap3764
 jupyter lab
 ```
 
 The environment includes:
-
 * Python 3.11
-* pandas
-* numpy
-* matplotlib
-* seaborn
-* jupyterlab
+* pandas 3.0.0
+* numpy 2.4.2
+* matplotlib 3.10.8
+* seaborn 0.13.2
+* scikit-learn 1.3.2
+* jupyterlab 4.5.3
 
 ---
 
-## Dataset
+## 📥 Dataset
 
 This project uses the 2024 Flight Delay and Cancellation dataset.
 
-Download it from:
+Download from:
 https://www.kaggle.com/datasets/nalisha/flight-delay-and-cancellation-data-1-million-2024
 
-Place the file in:
+Place the file at:
+data/raw/flight_data_2024.csv
 
-data/flight_data_2024.csv
+> **Note:** The full dataset covers all U.S. airports in 2024.
+> This project filters for MIA origin flights only (January–February 2024).
+> The processed file `data/processed/mia_flights_clean.csv` contains 19,396 flights.
+
+---
 
 ## 📊 Dataset Description
 
-The dataset contains flight-level operational data including:
+**Coverage:** January 1, 2024 – February 29, 2024 (winter season only)
+**Scope:** Flights departing from Miami International Airport (MIA)
+**Records:** 19,396 flights after cleaning and filtering
 
 ### Numerical Variables
-
-* departure time
-* taxi out / taxi in time
-* air time
-* distance
-* weather delay
-* late aircraft delay
+* Departure time, taxi out / taxi in time, air time, distance
+* Weather delay, late aircraft delay
 
 ### Categorical Variables
+* Day of week, month, origin airport, cancellation status
 
-* day of week
-* month
-* origin airport
-* cancellation status
-
-The dataset currently covers:
-
-**January 1, 2024 – February 29, 2024**
+### Derived Features
+* `dep_hour` — departure hour extracted from departure time
+* `is_delayed` — binary target: 1 if late aircraft delay > 15 minutes
 
 ---
 
-## 🧹 Data Preparation
+## 🧹 Data Preparation — `01_data_cleaning.ipynb`
 
-The data cleaning process includes:
-
+* Raw dataset preserved as original copy before any transformation
+* Removed 7,401 duplicate records
 * Date conversion to datetime format
-* Handling missing values
-* Duplicate verification
-* Data type validation
-* Creation of derived features (e.g., departure hour)
-* Export of cleaned dataset to `data/processed/`
+* Missing value analysis by cancellation status
+* Delay columns filled with 0 (missing = no delay recorded)
+* Incomplete non-cancelled records dropped
+* Filtered for MIA origin flights only
+* Cleaned dataset exported to `data/processed/`
 
 ---
 
-## 📈 Exploratory Data Analysis (EDA)
-
-The EDA includes:
+## 📈 Exploratory Data Analysis — `02_eda.ipynb`
 
 * Summary statistics for all numerical variables
-* Distribution analysis of delay variables
-* Cancellation rate by month
-* Cancellation rate by day of week
-* Weather delay patterns by departure hour
-* Outlier exploration using histograms and boxplots
+* Cancellation rate by month and day of week (Tuesday: 2.23% — highest)
+* Delay type comparison: late aircraft (15.18%) vs weather (1.11%)
+* Time-of-day risk patterns by departure hour
+* Correlation analysis: distance vs delay variables
+* Outlier analysis using IQR method and boxplots
 
-Each visualization is accompanied by written insights explaining operational implications.
+**Key EDA finding:** Cancellation rate (1.07%) was too imbalanced for reliable
+prediction, leading to reframing the target as delay prediction (>15 min, 11.42%).
 
 ---
 
-## 🔎 Key Insights
+## 🤖 Modeling
 
-* Certain days of the week show higher cancellation frequency.
-* Flights departing later in the day exhibit increased delay risk.
-* Weather-related delays vary significantly depending on departure time.
-* Late aircraft delays suggest cumulative operational disruptions throughout the day.
+### Tree-Based Models — `03_tree_based_model.ipynb`
 
-These insights highlight opportunities for improved scheduling and operational risk management.
+Target: `is_delayed` (flight delayed >15 minutes)
+Approach: `class_weight='balanced'` to handle 11.42% class imbalance
+
+| Model | ROC-AUC (Test) | ROC-AUC (CV) | Recall | F1 |
+|---|---|---|---|---|
+| Decision Tree | 0.50 | 0.597 | 27.5% | 0.265 |
+| Random Forest | 0.743 | 0.768 | 55.5% | 0.322 |
+
+**Winner: Random Forest** — significantly better discrimination and recall.
+Feature importance shows `weather_delay`, `dep_hour`, and `taxi_out`
+as the strongest predictors of delay risk.
+
+### Clustering — `04_clustering.ipynb`
+
+Unsupervised analysis to discover operational risk profiles.
+
+* **PCA** — dimensionality reduction for visualization
+* **KMeans (k=4)** — operational flight clusters, Silhouette: 0.237
+* **DBSCAN** — density-based clustering, identified 205 anomalous flights
+  with avg weather delay of 61 min and late aircraft delay of 184 min
+
+---
+
+## 🔎 Key Findings
+
+* **Random Forest** achieves ROC-AUC of 0.743 — meaningfully above random baseline
+* **Late aircraft delay** is the most operationally impactful delay type (15.18% of flights)
+* **Tuesday** shows the highest cancellation rate (2.23%)
+* **Flights departing later in the day** accumulate higher delay risk
+* **DBSCAN anomaly cluster** identifies extreme-disruption flights with avg delays >180 min
+* **Distance** has near-zero correlation with delays — disruptions are operationally driven
 
 ---
 
 ## ⚠️ Limitations
 
-* The dataset only covers two months (January–February 2024).
-* Seasonal trends cannot be evaluated.
-* External operational variables (crew availability, air traffic congestion) are not included.
+* Dataset covers only January–February 2024 — winter season patterns only
+* Seasonal trends and summer operations cannot be evaluated
+* External variables (crew availability, air traffic control, gate conflicts) not included
+* Random Forest recall of 55.5% means ~45% of delayed flights are still missed
+* Results are specific to MIA and may not generalize to other airports
 
 ---
 
 ## 🚀 Future Improvements
 
-* Extend analysis to a full-year dataset.
-* Build a predictive model for cancellation risk.
-* Develop a dashboard for operational monitoring.
+* Extend dataset to full calendar year for seasonal analysis
+* Add airline, destination, and weather forecast features
+* Implement hyperparameter tuning (GridSearchCV) for Random Forest
+* Explore Gradient Boosting models (XGBoost, LightGBM)
+* Deploy model as a real-time risk scoring API using FastAPI + Streamlit
 
 ---
 
 ## 👥 Team Collaboration
 
-This project was developed collaboratively using:
-
-* GitHub for version control
-* Feature branches for task management
-* Pull requests for code review
-* Conda environment for reproducibility
+This project was developed collaboratively by Team 2 using:
+* GitHub for version control with feature branches per task
+* Pull requests for peer review before merging to main
+* Conda environment with pinned dependencies for reproducibility
+* Balanced contributions across data cleaning, EDA, modeling, and clustering
 
 ---
 
 ## 🎥 Deliverables
 
-* Jupyter Notebook (EDA & analysis)
-* Cleaned dataset
-* GitHub repository
-* 10-minute presentation video
-* Slide deck summarizing insights
+* `01_data_cleaning.ipynb` — Data preparation
+* `02_eda.ipynb` — Exploratory analysis
+* `03_tree_based_model.ipynb` — Tree-based delay prediction
+* `04_clustering.ipynb` — Unsupervised operational clustering
+* `data/processed/mia_flights_clean.csv` — Cleaned dataset
+* `outputs/` — All figures and model exports
+* Executive Summary Report
+* GitHub repository with full version history
 
 ---
 
