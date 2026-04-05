@@ -1,12 +1,13 @@
-name: flights
+name: flight-cancellation-project
 channels:
   - defaults
 dependencies:
-  - python=3.11
-  - ipykernel
-  - pandas
-  - jupyterlab
-  - numpy
-  - seaborn
-  - matplotlib
-prefix: C:\Users\nicol\anaconda3\envs\flights
+  - python=3.11.15
+  - pandas=3.0.1
+  - numpy=2.4.3
+  - scikit-learn=1.7.1
+  - scipy=1.17.1
+  - matplotlib=3.10.8
+  - seaborn=0.13.2
+  - jupyterlab=4.5.3
+  - ipykernel=7.2.0
