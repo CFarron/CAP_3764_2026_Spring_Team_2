@@ -33,9 +33,8 @@ enabling proactive resource allocation by ground operations teams.
 CAP_3764_2026_Spring_Team_2/
 │
 ├── data/
-│   ├── raw/                    # Original unmodified dataset
-│   └── processed/              # Cleaned and filtered MIA dataset
-│
+│   ├──flight_data_2024.csv # Raw dataset
+│   ├──mia_flights.clean.csv # Clean dataset
 ├── notebooks/
 │   ├── 01_data_cleaning.ipynb  # Data preparation and preprocessing
 │   ├── 02_eda.ipynb            # Exploratory data analysis
@@ -52,7 +51,7 @@ CAP_3764_2026_Spring_Team_2/
 To reproduce this project in a clean environment:
 ```bash
 conda env create -f environment.yml
-conda activate mia-flights-cap3764
+conda activate flight-cancellation-project
 jupyter lab
 ```
 
@@ -73,9 +72,6 @@ This project uses the 2024 Flight Delay and Cancellation dataset.
 
 Download from:
 https://www.kaggle.com/datasets/nalisha/flight-delay-and-cancellation-data-1-million-2024
-
-Place the file at:
-data/raw/flight_data_2024.csv
 
 > **Note:** The full dataset covers all U.S. airports in 2024.
 > This project filters for MIA origin flights only (January–February 2024).
@@ -138,11 +134,11 @@ Approach: `class_weight='balanced'` to handle 11.42% class imbalance
 
 | Model | ROC-AUC (Test) | ROC-AUC (CV) | Recall | F1 |
 |---|---|---|---|---|
-| Decision Tree | 0.50 | 0.597 | 27.5% | 0.265 |
-| Random Forest | 0.743 | 0.768 | 55.5% | 0.322 |
+| Decision Tree | 0.615 | 0.640 | 20.3% | 0.265 |
+| Random Forest | 0.750 | 0.769 | 60.0% | 0.325 |
 
 **Winner: Random Forest** — significantly better discrimination and recall.
-Feature importance shows `weather_delay`, `dep_hour`, and `taxi_out`
+Feature importance shows `dep_hour`, `distance`, and `day_of_week`
 as the strongest predictors of delay risk.
 
 ### Clustering — `04_clustering.ipynb`
@@ -158,6 +154,7 @@ Unsupervised analysis to discover operational risk profiles.
 
 ## 🔎 Key Findings
 
+* **Feature engineering** significantly improved model performance and interpretability
 * **Random Forest** achieves ROC-AUC of 0.743 — meaningfully above random baseline
 * **Late aircraft delay** is the most operationally impactful delay type (15.18% of flights)
 * **Tuesday** shows the highest cancellation rate (2.23%)
@@ -181,7 +178,6 @@ Unsupervised analysis to discover operational risk profiles.
 
 * Extend dataset to full calendar year for seasonal analysis
 * Add airline, destination, and weather forecast features
-* Implement hyperparameter tuning (GridSearchCV) for Random Forest
 * Explore Gradient Boosting models (XGBoost, LightGBM)
 * Deploy model as a real-time risk scoring API using FastAPI + Streamlit
 
@@ -203,7 +199,7 @@ This project was developed collaboratively by Team 2 using:
 * `02_eda.ipynb` — Exploratory analysis
 * `03_tree_based_model.ipynb` — Tree-based delay prediction
 * `04_clustering.ipynb` — Unsupervised operational clustering
-* `data/processed/mia_flights_clean.csv` — Cleaned dataset
+* `data/mia_flights_clean.csv` — Cleaned dataset
 * `outputs/` — All figures and model exports
 * Executive Summary Report
 * GitHub repository with full version history
