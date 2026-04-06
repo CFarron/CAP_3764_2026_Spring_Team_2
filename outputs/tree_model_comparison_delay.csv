@@ -1,0 +1,4 @@
+Model,Accuracy,Precision (delayed),Recall (delayed),F1 (delayed),ROC-AUC,CV ROC-AUC
+Decision Tree,0.8714,0.3814,0.2032,0.2651,0.6151,0.6399
+Random Forest,0.7149,0.2226,0.6005,0.3248,0.75,0.7687
+Tuned Random Forest,0.8897,0.6316,0.0813,0.144,0.7573,0.7897
