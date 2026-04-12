@@ -1,0 +1,3 @@
+Model,Accuracy,Precision (Cancelled),Recall (Cancelled),F1-Score (Cancelled),ROC-AUC,CV ROC-AUC (Train)
+Decision Tree,0.9992,0.0,0.0,0.0,0.4997,
+Random Forest,0.9997,0.0,0.0,0.0,0.4975,
