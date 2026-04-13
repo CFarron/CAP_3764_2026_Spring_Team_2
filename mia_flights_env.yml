@@ -1,6 +1,7 @@
-name: flight-cancellation-project
+name: mia-flights
 channels:
   - defaults
+  - conda-forge
 dependencies:
   - python=3.11.15
   - pandas=3.0.1
@@ -11,3 +12,6 @@ dependencies:
   - seaborn=0.13.2
   - jupyterlab=4.5.3
   - ipykernel=7.2.0
+  - pip:
+    - xgboost
+    - shap
