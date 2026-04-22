@@ -12,6 +12,8 @@ dependencies:
   - seaborn=0.13.2
   - jupyterlab=4.5.3
   - ipykernel=7.2.0
+  - joblib=1.5.3
+  - pip
   - pip:
-    - xgboost
-    - shap
+    - xgboost==3.2.0
+    - shap==0.51.0
